@@ -1,5 +1,5 @@
 <video autoplay></video>
-<img src="">
+<img id="capturedImage" src="">
 <canvas style="display:none;" width='1280'
 	height='720'></canvas>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
@@ -66,10 +66,19 @@ jQuery(document).ready(function()
     }
     
  });
+ jQuery("#upload").click(function()
+ {
+ 	var data = {data:canvas.toDataURL('image/png')};
+ 	jQuery.post("ajax.php",data,function()
+ 	{
+ 		console.log("successful uploaded");
+ 	},'json');
+ });
 });
 
 </script>
 <input type="button" value="selfie" id="selfie" />
+<input type="button" value="upload" id="upload" />
 </html>
 
 
