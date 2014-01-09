@@ -1,8 +1,8 @@
 Source: <div id="source"></div>
 <video id="videostream" autoplay></video>
 <img id="capturedImage" src="">
-<canvas style="display:none;" width='800px'
-	height='1200px'></canvas>
+<canvas style="display:none;" width="640"  height="480"
+></canvas>
 	
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
@@ -30,8 +30,9 @@ Source: <div id="source"></div>
 	var hdConstraints = {
 		  video: {
 		    mandatory: {
-		      minWidth: 800,
-		      minHeight: 1200
+		      minWidth: 640,
+		      minHeight: 480,
+		     // facingMode: "environment"
 		    },
 		   // optional: [{sourceId: videoSource}]
 		  }
@@ -48,6 +49,12 @@ Source: <div id="source"></div>
 			 * The User must allow the Webcam
 			 */
 			navigator.getUserMedia(hdConstraints, successCallback, function(){console.log("fail");});
+			
+			/*
+			 * TODO set canvas with automatic
+			 */
+			//jQuery("canvas").attr('width',jQuery("#videostream").width());
+			//jQuery("canvas").attr('width',jQuery("#videostream").height());
 		}
 		else
 		{
