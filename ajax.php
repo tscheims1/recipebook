@@ -14,5 +14,5 @@ file_put_contents($filename, base64_decode($data));
 
 include 'ocr.php';
 
-echo json_encode(array('message' => 'successful','text' => $text));
+
 ?>

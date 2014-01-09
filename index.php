@@ -1,11 +1,50 @@
-Source: <div id="source"></div>
+<html>
+<head>
+<style>
+html
+{
+	font-family: Verdana;
+}
+#progress { position:relative; width:400px; border: 1px solid #ddd; padding: 1px; border-radius: 3px; }
+#bar { background-color: #B4F5B4; width:0%; height:20px; border-radius: 3px; }
+#percent { position:absolute; display:inline-block; top:3px; left:48%;}	
+	
+</style>
+</head>
+<body>
+
+
+<h2>HTML 5 OCR Reader</h2>
+<div id="source"></div>
 <video id="videostream" autoplay></video>
 <img id="capturedImage" src="">
 <canvas style="display:none;" width="640"  height="480"
 ></canvas>
-	
-
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="http://malsup.github.com/jquery.form.js"></script>
+<script>
+/*
+(function addXhrProgressEvent($) {
+var originalXhr = $.ajaxSettings.xhr;
+$.ajaxSetup({
+progress: function() { console.log("standard progress callback"); },
+xhr: function() {
+var req = originalXhr(), that = this;
+if (req) {
+if (typeof req.addEventListener == "function") {
+req.addEventListener("progress", function(evt) {
+that.progress(evt);
+},false);
+}
+}
+return req;
+}
+});
+})(jQuery);
+	*/
+</script>	
+
+
 <script>
 	
 	var videoSource = 1;
@@ -96,13 +135,19 @@ function successCallback(stream) {
     localMediaStream = stream;
     
     }
-
+/*
+ * 
+ * Events **********
+ */
 jQuery(document).ready(function()
 {
 	jQuery("#selfie,#videostream").click(function()
 	{
 		
 	 if (localMediaStream) {
+	 	
+	 
+	 	
 	 	console.log("selfie");
 	      ctx.drawImage(video, 0, 0);
 	      // "image/webp" works in Chrome.
@@ -115,17 +160,110 @@ jQuery(document).ready(function()
  {
  	var data = {data:canvas.toDataURL('image/png')};
  	
- 	jQuery.post("ajax.php",data,function(response)
+	/*
+ 	 * Init Progressbar
+ 	 */
+ 	$("#progress").show();
+    //clear everything
+    $("#bar").width('0%');
+    $("#upload-message").html("");
+        $("#percent").html("0%");
+	 	
+ 	
+ 	jQuery.ajax("ajax.php",
  	{
- 		jQuery(".message").html("data");
- 		console.log(response);
- 		
- 	},'json');
+ 		data:data,
+ 		type:'post',
+ 		complete:function(response)
+	 	{
+	 		console.log(response);
+	 		var json = JSON.parse(response.responseText);
+	 		jQuery("#message").html(json.text);
+	 		//console.log(response.message);
+	 		
+	 	},
+	 	success:function()
+	 	{
+	 		 $("#bar").width('100%');
+        	$("#percent").html('100%');
+        
+	 	},
+	 	/*progress: function(evt)
+	 	{
+	 		console.log(evt);
+	 		var percent = evt;
+	 		 $("#bar").width(percent+'%');
+        	$("#percent").html(percent+'%');
+	 	},*/
+	 	dataType:'json',
+	 	
  });
+ 
+ });
+ /*AJAX Fileupload************************
+  * 
+  */
+ 
+ 	
+ 	var options = {
+    beforeSend: function()
+    {
+        $("#progress").show();
+        //clear everything
+        $("#bar").width('0%');
+        $("#upload-message").html("");
+        $("#percent").html("0%");
+    },
+    uploadProgress: function(event, position, total, percentComplete)
+    {
+        $("#bar").width(percentComplete+'%');
+        $("#percent").html(percentComplete+'%');
+ 
+    },
+    success: function(response)
+    {
+        $("#bar").width('100%');
+        $("#percent").html('100%');
+        
+       
+ 
+    },
+    complete: function(response)
+    {
+    	var json = JSON.parse(response.responseText);
+        $("#upload-message").html("<font color='green'>"+response.responseText+"</font>");
+  
+        jQuery("#message").html(json.text);
+        
+    },
+    error: function()
+    {
+        $("#upload-message").html("<font color='red'> ERROR: unable to upload files</font>");
+ 
+    }
+  };
+    
+     $("#file-upload-form").ajaxForm(options);
+    
+
 });
 
 </script>
-<input type="button" value="start" id="start" />
+<!--<input type="button" value="start" id="start" />-->
 <input type="button" value="selfie" id="selfie" />
 <input type="button" value="upload" id="upload-id" />
-<div class="message">msg</div>
+<form id="file-upload-form" action="ajaxupload.php" method="post" enctype="multipart/form-data "/>
+<input type="file" id="file-upload" name="fileupload" />
+<!---<input type="button" value="file upload" id="file-upload-button"/>-->
+<input type="submit" value="file upload" />
+</form>
+<div id="progress">
+        <div id="bar"></div>
+        <div id="percent">0%</div >
+</div>
+<!--<div id="upload-message"></div>-->
+
+<h3>OCR Callback</h3>
+<div id="message"></div>
+</body>
+</html>

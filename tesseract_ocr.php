@@ -6,7 +6,7 @@ class TesseractOCR {
     $configFile     = TesseractOCR::generateConfigFile(func_get_args());
     $outputFile     = TesseractOCR::executeTesseract($tifImage, $configFile);
     $recognizedText = TesseractOCR::readOutputFile($outputFile);
-    //TesseractOCR::removeTempFiles($tifImage, $outputFile, $configFile);
+    TesseractOCR::removeTempFiles($tifImage, $outputFile, $configFile);
     return $recognizedText;
   }
 
@@ -37,7 +37,7 @@ class TesseractOCR {
 
   function executeTesseract($tifImage, $configFile) {
     $outputFile = 'tmpimages/tesseract-ocr-output-'.rand();
-    exec("tesseract $tifImage $outputFile nobatch $configFile 2> /dev/null");
+    exec("tesseract $tifImage $outputFile -l deu nobatch tesseractconf.conf > /dev/null");
     return $outputFile.'.txt'; //tesseract appends txt extension to output file
   }
 
