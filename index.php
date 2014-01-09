@@ -1,18 +1,14 @@
-<video autoplay></video>
+Source: <div id="source"></div>
+<video id="videostream" autoplay></video>
 <img id="capturedImage" src="">
-<canvas style="display:none;" width='1280'
-	height='720'></canvas>
+<canvas style="display:none;" width='800px'
+	height='1200px'></canvas>
+	
+
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script>
-	var hdConstraints = {
-		  video: {
-		    mandatory: {
-		      minWidth: 1280,
-		      minHeight: 720
-		    }
-		  }
-		};
-
+	
+	var videoSource = 1;
 	var video = document.querySelector('video');
 	var canvas = document.querySelector('canvas');
 	var canvas = document.querySelector('canvas');
@@ -26,18 +22,60 @@
 	window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
 	console.log(navigator.getUserMedia);
 	
-	if(navigator.getUserMedia)
-	{
-		/*
-		 * Enable Usermedia 
-		 * The User must allow the Webcam
-		 */
-		navigator.getUserMedia(hdConstraints, successCallback, function(){console.log("fail");});
+	if (typeof MediaStreamTrack === 'undefined'){
+	  alert('This browser does not support MediaStreamTrack.\n\nTry Chrome Canary.');
+	} else {
+	  //MediaStreamTrack.getSources(gotSources);
 	}
-	else
+	var hdConstraints = {
+		  video: {
+		    mandatory: {
+		      minWidth: 800,
+		      minHeight: 1200
+		    },
+		   // optional: [{sourceId: videoSource}]
+		  }
+		};
+	
+	
+	
+	//alert(videoSource);
+	
+		if(navigator.getUserMedia)
+		{
+			/*
+			 * Enable Usermedia 
+			 * The User must allow the Webcam
+			 */
+			navigator.getUserMedia(hdConstraints, successCallback, function(){console.log("fail");});
+		}
+		else
+		{
+			alert( "Your Browser dosen't support getUserMedia.");
+		}
+/*
+ * Necessary for chrome mobile
+ */	
+function gotSources(sourceInfos)
+{
+	/*
+	var html = "";
+	for(var i = 0; i < sourceInfos.length;i++)
 	{
-		alert( "Your Browser dosen't support getUserMedia. Go fuck yourself.");
+		 var sourceInfo = sourceInfos[i];
+		 if(sourceInfo.kind =="video")
+		 {
+		 	//html +"= "<option>"+sourceInfo.label+"</option>";
+		 	//html += sourceInfo.id+"<br />";
+		 }
+		 //html += sourceInfo.label+" <br />";
 	}
+	videoSource = sourceInfos[2].id;
+	//alert(videoSource);
+	//jQuery("#source").html(html);
+			
+	//alert(sources);*/
+}
 	
 function successCallback(stream) {
     if (video.mozSrcObject !== undefined) {
@@ -54,7 +92,7 @@ function successCallback(stream) {
 
 jQuery(document).ready(function()
 {
-	jQuery("#selfie").click(function()
+	jQuery("#selfie,#videostream").click(function()
 	{
 		
 	 if (localMediaStream) {
@@ -66,37 +104,21 @@ jQuery(document).ready(function()
     }
     
  });
- jQuery("#upload").click(function()
+ jQuery("#upload-id").click(function()
  {
  	var data = {data:canvas.toDataURL('image/png')};
- 	jQuery.post("ajax.php",data,function()
+ 	
+ 	jQuery.post("ajax.php",data,function(response)
  	{
- 		console.log("successful uploaded");
+ 		jQuery(".message").html("data");
+ 		console.log(response);
+ 		
  	},'json');
  });
 });
 
 </script>
+<input type="button" value="start" id="start" />
 <input type="button" value="selfie" id="selfie" />
-<input type="button" value="upload" id="upload" />
-</html>
-
-
-
-<?php
-
-$handle = pspell_new("de","","","utf-8",PSPELL_NORMAL );
-
-$word = "Gemus";
-
-if(pspell_check($handle,$word))
-{
-	echo "das wort ist gültig";
-}
-else 
-{
-	echo "ungültig";
-	echo "vorschläge";	
-	print_r(pspell_suggest($handle,$word));
-}
-?>
+<input type="button" value="upload" id="upload-id" />
+<div class="message">msg</div>

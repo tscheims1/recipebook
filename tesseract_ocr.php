@@ -6,18 +6,18 @@ class TesseractOCR {
     $configFile     = TesseractOCR::generateConfigFile(func_get_args());
     $outputFile     = TesseractOCR::executeTesseract($tifImage, $configFile);
     $recognizedText = TesseractOCR::readOutputFile($outputFile);
-    TesseractOCR::removeTempFiles($tifImage, $outputFile, $configFile);
+    //TesseractOCR::removeTempFiles($tifImage, $outputFile, $configFile);
     return $recognizedText;
   }
 
   function convertImageToTif($originalImage) {
-    $tifImage = sys_get_temp_dir().'/tesseract-ocr-tif-'.rand().'.tif';
+    $tifImage = 'tmpimages/tesseract-ocr-tif-'.rand().'.tif';
     exec("convert -colorspace gray +matte $originalImage $tifImage");
     return $tifImage;
   }
 
   function generateConfigFile($arguments) {
-    $configFile = sys_get_temp_dir().'/tesseract-ocr-config-'.rand().'.conf';
+    $configFile = 'tmpimages/tesseract-ocr-config-'.rand().'.conf';
     exec("touch $configFile");
     $whitelist = TesseractOCR::generateWhitelist($arguments);
     if(!empty($whitelist)) {
@@ -36,7 +36,7 @@ class TesseractOCR {
   }
 
   function executeTesseract($tifImage, $configFile) {
-    $outputFile = sys_get_temp_dir().'/tesseract-ocr-output-'.rand();
+    $outputFile = 'tmpimages/tesseract-ocr-output-'.rand();
     exec("tesseract $tifImage $outputFile nobatch $configFile 2> /dev/null");
     return $outputFile.'.txt'; //tesseract appends txt extension to output file
   }
@@ -45,6 +45,7 @@ class TesseractOCR {
     return trim(file_get_contents($outputFile));
   }
 
-  function removeTempFiles() { array_map("unlink", func_get_args()); }
+  function removeTempFiles() { //array_map("unlink", func_get_args()); 
+  }
 }
 ?>
