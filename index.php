@@ -1,3 +1,8 @@
+<?php
+include "Mobile_Detect.php";
+$detect = new Mobile_Detect();
+?>
+
 <html>
 <head>
 <style>
@@ -15,13 +20,16 @@ html
 
 
 <h2>HTML 5 OCR Reader</h2>
+<div class="webcam-utils">
 <div id="source"></div>
 <video id="videostream" autoplay></video>
 <img id="capturedImage" src="">
 <canvas style="display:none;" width="640"  height="480"
 ></canvas>
+</div>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="http://malsup.github.com/jquery.form.js"></script>
+<script src="base64.js"></script>
 <script>
 /*
 (function addXhrProgressEvent($) {
@@ -42,6 +50,22 @@ return req;
 });
 })(jQuery);
 	*/
+/*
+ * algorithm for more image contrast
+ */
+function contrastImage(imageData, contrast) {
+
+    var data = imageData.data;
+    var factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+
+    for(var i=0;i<data.length;i+=4)
+    {
+        data[i] = (factor * ((data[i] - 128) + 128));
+        data[i+1] = (factor * ((data[i+1] - 128) + 128));
+        data[i+2] = (factor * ((data[i+2] - 128) + 128));
+    }
+    return imageData;
+}
 </script>	
 
 
@@ -62,7 +86,7 @@ return req;
 	console.log(navigator.getUserMedia);
 	
 	if (typeof MediaStreamTrack === 'undefined'){
-	  alert('This browser does not support MediaStreamTrack.\n\nTry Chrome Canary.');
+	  console.log('This browser does not support MediaStreamTrack.\n\nTry Chrome Canary.');
 	} else {
 	  //MediaStreamTrack.getSources(gotSources);
 	}
@@ -97,7 +121,7 @@ return req;
 		}
 		else
 		{
-			alert( "Your Browser dosen't support getUserMedia.");
+			console.log( "Your Browser dosen't support getUserMedia.");
 		}
 /*
  * Necessary for chrome mobile
@@ -147,11 +171,15 @@ jQuery(document).ready(function()
 	 if (localMediaStream) {
 	 	
 	 
-	 	
+	 	//video.contrast(2.0);
 	 	console.log("selfie");
-	      ctx.drawImage(video, 0, 0);
+	    ctx.drawImage(video, 0, 0);
+	    /*imgData = ctx.getImageData(0,0,640,480);
+	    imgData = contrastImage(imgData,80);*/
+	    
 	      // "image/webp" works in Chrome.
 	      // Other browsers will fall back to image/png.
+	      
 	      document.querySelector('img').src = canvas.toDataURL('image/png');
     }
     
@@ -245,13 +273,19 @@ jQuery(document).ready(function()
     
      $("#file-upload-form").ajaxForm(options);
     
+	<?php if( $detect->isiOS() ){?>
+	
+		jQuery(".webcam-utils").hide();
+	<?php }?>		
 
 });
 
 </script>
 <!--<input type="button" value="start" id="start" />-->
+<div class="webcam-utils">
 <input type="button" value="selfie" id="selfie" />
 <input type="button" value="upload" id="upload-id" />
+</div>
 <form id="file-upload-form" action="ajaxupload.php" method="post" enctype="multipart/form-data "/>
 <input type="file" id="file-upload" name="fileupload" />
 <!---<input type="button" value="file upload" id="file-upload-button"/>-->

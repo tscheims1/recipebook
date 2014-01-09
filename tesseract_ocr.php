@@ -12,19 +12,26 @@ class TesseractOCR {
 
   function convertImageToTif($originalImage) {
     $tifImage = 'tmpimages/tesseract-ocr-tif-'.rand().'.tif';
-    exec("convert -colorspace gray +matte $originalImage $tifImage");
+	//-modulate 100,200 
+	// -units PixelsPerInch img 
+    //exec("convert -units PixelsPerInch -colorspace gray +matte $originalImage -density 300  $tifImage");
+    
+    exec("convert -colorspace gray +matte -resample 200x200 -depth 8 $originalImage  $tifImage");
     return $tifImage;
+	
+	
   }
 
   function generateConfigFile($arguments) {
     $configFile = 'tmpimages/tesseract-ocr-config-'.rand().'.conf';
-    exec("touch $configFile");
+	$configFile = 'tmpimages/tesseractconf.conf';
+    /*exec("touch $configFile");
     $whitelist = TesseractOCR::generateWhitelist($arguments);
     if(!empty($whitelist)) {
       $fp = fopen($configFile, 'w');
       fwrite($fp, "tessedit_char_whitelist $whitelist");
       fclose($fp);
-    }
+    }*/
     return $configFile;
   }
 
@@ -37,7 +44,14 @@ class TesseractOCR {
 
   function executeTesseract($tifImage, $configFile) {
     $outputFile = 'tmpimages/tesseract-ocr-output-'.rand();
-    exec("tesseract $tifImage $outputFile -l deu nobatch tesseractconf.conf > /dev/null");
+	
+	/*
+	 * Set only Whitelist for the Webcam
+	 */
+	if(WHITELIST)
+    	exec("tesseract $tifImage $outputFile -l deu nobatch tmpimages/tesseractconf.conf > /dev/null");
+	else
+		exec("tesseract $tifImage $outputFile -l deu nobatch abcdef > /dev/null");
     return $outputFile.'.txt'; //tesseract appends txt extension to output file
   }
 

@@ -1,4 +1,5 @@
-<?php 
+<?php
+define('WHITELIST',true); 
 /*
  * Remove the Headerdata
  */
